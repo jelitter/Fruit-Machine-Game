@@ -7,7 +7,7 @@
 // -----------------------------------------
 
 // DOM elements
-let settings, handle, fruit1, fruit2, fruit3;
+let settings, confetti, handle, fruit1, fruit2, fruit3;
 
 // Timestamp of the last stopped fruit
 let lastStop = 0;
@@ -37,6 +37,10 @@ let fruits = {
     // Fruits DOM elements
     elements: [],
 
+    // Each fruit sound when rolling
+    sounds: [],
+    soundStop: new Audio('/assets/sound/stop.wav'),
+
     // Background position tracking, starting at a random position between 0px and 600px
     positions: [],
     intervals: [],
@@ -50,6 +54,7 @@ document.addEventListener(
     'DOMContentLoaded',
     function() {
         settings = document.getElementById('settings');
+        confetti = document.getElementById('confetti');
         handle = document.getElementById('handle');
         gameResults = document.getElementById('game-results');
         debug = document.getElementById('debug');
@@ -57,9 +62,18 @@ document.addEventListener(
         fruits.elements.push(document.getElementById('f-2'));
         fruits.elements.push(document.getElementById('f-3'));
 
+        fruits.sounds = [
+            new Audio('/assets/sound/tick.wav'),
+            new Audio('/assets/sound/tick.wav'),
+            new Audio('/assets/sound/tick.wav')
+        ];
+        fruits.sounds.forEach(s => {
+            s.loop = true;
+            s.volume = 0.4;
+        });
+
         // Apply initial random positions
         resetFruitPositions();
-        // updateDebug();
         addEventListeners();
     },
     false
@@ -90,24 +104,28 @@ const addEventListeners = () => {
 
     handle.addEventListener('click', event => {
         if (fruits.gameFinished) {
-            startRolls();
+            startGame();
         } else {
             console.log('Game in progress, please wait');
         }
     });
 };
 
-const startRolls = () => {
+const startGame = () => {
     console.log('🔔 Starting new game');
+
     resetFruitPositions();
     fruits.gameFinished = false;
     fruits.stopRequested = false;
     fruits.rolling = Array(3).fill(true);
     debug.children[0].textContent = 'Game Info';
+    // confetti.style.setProperty('display', 'none');
+    confetti.style.setProperty('transform', 'translateY(-100%)');
+    updateGameObject();
     fruits.elements.forEach((fruit, index) => {
         const startDelay = index * fruits.startDelay;
         setTimeout(() => {
-            console.log('🍒 Rolling fruit', index);
+            console.log(`${fruits.status[index]} Rolling fruit`, index);
             rollFruit(fruit, index);
         }, startDelay);
     });
@@ -121,6 +139,9 @@ const startRolls = () => {
 const rollFruit = (fruit, index) => {
     // Random speed between 15 and 20 pixels per animation frame
     const thisStep = fruits.step + Math.floor(Math.random() * 5);
+
+    // Start roulette sound
+    fruits.sounds[index].play();
 
     // Blur image when starts rolling for speed effect
     fruit.style.setProperty('filter', 'blur(2px)');
@@ -137,6 +158,10 @@ const rollFruit = (fruit, index) => {
         ) {
             lastStop = now;
             fruits.rolling[index] = false;
+            fruits.sounds[index].pause();
+
+            // Playing one random stop sound from the list
+            fruits.soundStop.play();
             fruits.elements[index].style.setProperty('filter', 'blur(0px)');
 
             clearInterval(fruits.intervals[index]);
@@ -152,7 +177,7 @@ const rollFruit = (fruit, index) => {
         updateDebug();
         if (fruits.gameFinished) {
             gameResults.textContent = fruits.result;
-            console.log('GAME FINISHED');
+            console.log(`GAME FINISHED! ${fruits.status.join('')}`);
         }
     }, 16);
 
@@ -170,12 +195,15 @@ const updateGameObject = () => {
 
     const result = fruits.gameFinished
         ? uniqueFruits < 3
-            ? `🏆 YOU WIN: ${4 - uniqueFruits} equals!`
-            : `💀 YOU LOSE`
+            ? `${status.join('')} -> 🏆 YOU WIN: ${4 - uniqueFruits} equals!`
+            : `${status.join('')} -> 💀 YOU LOSE  `
         : '❔';
 
     if (!fruits.gameFinished) {
-        gameResults.textContent = status.join('  ');
+        gameResults.textContent = status.join('');
+    } else if (uniqueFruits < 3) {
+        // confetti.style.setProperty('display', 'flex');
+        confetti.style.setProperty('transform', 'translateY(0%)');
     }
 
     fruits = {
