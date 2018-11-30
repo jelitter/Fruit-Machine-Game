@@ -1,0 +1,104 @@
+:root {
+    --border-radius: 30px;
+    --fruit-width: 150px;
+    --fruit-1-pos: 2;
+    --fruit-2-pos: 3;
+    --fruit-3-pos: 1;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.fill {
+    height: 100%;
+    width: 100%;
+}
+
+html,
+body {
+    background-color: orange;
+}
+
+#settings {
+    background-image: url('/assets/img/cog.svg');
+    background-position: center center;
+    background-size: 70px 70px;
+    cursor: pointer;
+    height: 50px;
+    left: 10px;
+    position: absolute;
+    top: 10px;
+    width: 50px;
+}
+
+.container {
+    border: solid cornflowerblue;
+    height: 100%;
+    min-width: 800px;
+    display: flex;
+}
+
+#handle {
+    cursor: pointer;
+    border: solid blueviolet;
+    position: absolute;
+    left: calc(50% + 280px);
+    margin-top: 30%;
+    top: -20%;
+    height: 300px;
+    width: 70px;
+    background: limegreen;
+}
+
+.fruits {
+    border: solid 2px darkslategrey;
+    border-radius: var(--border-radius);
+    width: 500px !important;
+    /* height: 200px !important; */
+    margin: auto;
+    margin-top: 30%;
+    padding: 30px;
+    background-color: white;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.fruit-frame {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 0;
+    width: 485px;
+    border-top: solid 15px;
+    border-bottom: solid 15px;
+    border-radius: 20px;
+}
+
+.fruit {
+    width: 150px;
+    height: 150px;
+    border-radius: var(--border-radius);
+    border: solid 15px black;
+    margin: -15px -8px;
+    background: url('/assets/img/sprite.png') 0 0;
+    background-color: white;
+    background-position: center center;
+    /* background-size: 150px auto; */
+    /* margin-left: -7px; */
+}
+
+#f-1 {
+    background: url('/assets/img/sprite.png') 0
+        calc(var(--fruit-width) * var(--fruit-1-pos));
+    background-size: 150px auto;
+}
+#f-2 {
+    background: url('/assets/img/sprite.png') 0
+        calc(var(--fruit-width) * var(--fruit-2-pos));
+    background-size: 150px auto;
+}
+#f-3 {
+    background: url('/assets/img/sprite.png') 0
+        calc(var(--fruit-width) * var(--fruit-3-pos));
+    background-size: 150px auto;
+}
