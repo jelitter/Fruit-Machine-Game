@@ -43,15 +43,34 @@ body {
 }
 
 #handle {
+    background-image: url(/assets/img/handle.png);
+    background-size: 70px 300px;
+    transform: rotate3d(1, 0, 0, 0deg);
+    transform-origin: bottom left;
     cursor: pointer;
-    border: solid blueviolet;
+    position: absolute;
+    left: calc(50% + 336px);
+    margin-top: 30%;
+    top: -19%;
+    height: 300px;
+    width: 70px;
+    transition: 500ms;
+}
+
+#handle:active {
+    transform: rotate3d(1, 0, 0, 30deg);
+}
+
+#handle-base {
+    background-image: url(/assets/img/handle-base.png);
+    background-size: 60px 102px;
     position: absolute;
     left: calc(50% + 280px);
     margin-top: 30%;
-    top: -20%;
-    height: 300px;
-    width: 70px;
-    background: limegreen;
+    top: 4%;
+    height: 102px;
+    width: 60px;
+    z-index: 10;
 }
 
 #game-results {
