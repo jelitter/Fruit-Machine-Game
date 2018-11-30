@@ -9,11 +9,20 @@
 // DOM elements
 let settings, handle, fruit1, fruit2, fruit3;
 
-const fruits = {
+// Timestamp of the last stopped fruit
+let lastStop = 0;
+
+let fruits = {
     // Fruit with and height
     fruitSize: 150,
     // Default roll speed in pixels per animation frame
     step: 15,
+
+    // Delay until next fruit starts rolling on a new game
+    startDelay: 200,
+
+    // Delay until next fruit stops rolling on finishing game
+    stopDelay: 1000,
 
     // Rolls stop after this time (ms)
     rollsDuration: 5000,
@@ -42,12 +51,15 @@ document.addEventListener(
     function() {
         settings = document.getElementById('settings');
         handle = document.getElementById('handle');
+        gameResults = document.getElementById('game-results');
+        debug = document.getElementById('debug');
         fruits.elements.push(document.getElementById('f-1'));
         fruits.elements.push(document.getElementById('f-2'));
         fruits.elements.push(document.getElementById('f-3'));
 
         // Apply initial random positions
         resetFruitPositions();
+        // updateDebug();
         addEventListeners();
     },
     false
@@ -91,8 +103,9 @@ const startRolls = () => {
     fruits.gameFinished = false;
     fruits.stopRequested = false;
     fruits.rolling = Array(3).fill(true);
+    debug.children[0].textContent = 'Game Info';
     fruits.elements.forEach((fruit, index) => {
-        const startDelay = index * 1000;
+        const startDelay = index * fruits.startDelay;
         setTimeout(() => {
             console.log('🍒 Rolling fruit', index);
             rollFruit(fruit, index);
@@ -109,38 +122,71 @@ const rollFruit = (fruit, index) => {
     // Random speed between 15 and 20 pixels per animation frame
     const thisStep = fruits.step + Math.floor(Math.random() * 5);
 
+    // Blur image when starts rolling for speed effect
+    fruit.style.setProperty('filter', 'blur(2px)');
+
     const interval = setInterval(() => {
         const pos = (fruits.positions[index] += thisStep);
         fruit.style.setProperty('background-position', '0 ' + pos + 'px');
+        const now = new Date().getTime();
 
-        if (fruits.stopRequested && pos % fruits.fruitSize < 5) {
+        if (
+            fruits.stopRequested &&
+            pos % fruits.fruitSize < 5 &&
+            now - lastStop >= fruits.stopDelay
+        ) {
+            lastStop = now;
             fruits.rolling[index] = false;
-            clearInterval(fruits.intervals[index]);
-            // fruits.intervals.splice(index, 1);
+            fruits.elements[index].style.setProperty('filter', 'blur(0px)');
 
-            // console.log(`🛑 Fruit ${index} stopped.`);
+            clearInterval(fruits.intervals[index]);
 
             // True when rolling values are [false, false, false]
             fruits.gameFinished = fruits.rolling.every(rolling => !rolling);
             if (fruits.gameFinished) {
                 fruits.intervals = [];
             }
-            // console.log(JSON.stringify(fruits.rolling));
-
-            console.log('GAME FINISHED');
-            console.log('\n\n\n' + JSON.stringify(fruits, null, 2));
         }
 
-        // console.clear();
-        console.log('\n\n\n' + JSON.stringify(fruits, null, 2));
+        updateGameObject();
+        updateDebug();
+        if (fruits.gameFinished) {
+            gameResults.textContent = fruits.result;
+            console.log('GAME FINISHED');
+        }
     }, 16);
 
     fruits.intervals.push(interval);
 };
 
-// const stopRolls = () => {
-//     fruits.interval.forEach(int => {
-//         clearInterval(int);
-//     });
-//     console.log('🛑 Rolls stopped.');
-// };
+const updateGameObject = () => {
+    const status = fruits.positions.map(
+        pos => fruitNames[Math.floor((pos / fruits.fruitSize) % 5)]
+    );
+
+    const uniqueFruits = status.reduce((result, current) => {
+        return ~result.indexOf(current) ? result : result.concat(current);
+    }, []).length;
+
+    const result = fruits.gameFinished
+        ? uniqueFruits < 3
+            ? `🏆 YOU WIN: ${4 - uniqueFruits} equals!`
+            : `💀 YOU LOSE`
+        : '❔';
+
+    if (!fruits.gameFinished) {
+        gameResults.textContent = status.join('  ');
+    }
+
+    fruits = {
+        ...fruits,
+        status,
+        result
+    };
+};
+
+const updateDebug = () => {
+    debug.children[1].textContent = JSON.stringify(fruits, null, 2);
+};
+
+const fruitNames = ['🔔', '🍇', '🍒', '7️⃣', '🍋'];
