@@ -2,14 +2,11 @@
 //         VARIABLES & CONSTANTS
 // -----------------------------------------
 
-// -----------------------------------------
-//         FUNCTIONS
-// -----------------------------------------
-
 // DOM elements
 let settings, info, toggleInfoButton, confetti, handle, fruit1, fruit2, fruit3;
 let showInfo = false;
 // Timestamp of the last stopped fruit
+let gameStarted = 0;
 let lastStop = 0;
 
 let fruits = {
@@ -50,6 +47,10 @@ let fruits = {
     // Fruits shouldn't be rolling on start
     rolling: Array(3).fill(false)
 };
+
+// -----------------------------------------
+//         FUNCTIONS
+// -----------------------------------------
 
 // Start execution as soon as the page is fully loaded
 document.addEventListener(
@@ -94,10 +95,12 @@ const resetFruitPositions = () => {
         getRandomPosition(),
         getRandomPosition()
     ];
-    fruits.positions.forEach((pos, index) => {
-        fruits.elements[index].style.setProperty(
+
+    fruits.elements.forEach((fruit, index) => {
+        fruit.style.setProperty('transition', 'ease-in');
+        fruit.style.setProperty(
             'background-position',
-            '0 ' + pos + 'px'
+            '0 ' + fruits.positions[index] + 'px'
         );
     });
 };
@@ -108,6 +111,7 @@ const addEventListeners = () => {
     });
 
     toggleInfoButton.addEventListener('click', event => toggleInfo());
+    info.addEventListener('click', event => toggleInfo());
 
     handle.addEventListener('click', event => {
         if (fruits.gameFinished) {
@@ -121,6 +125,7 @@ const addEventListeners = () => {
 const startGame = () => {
     console.log('🔔 Starting new game');
 
+    gameStarted = new Date().getTime();
     resetFruitPositions();
     fruits.gameFinished = false;
     fruits.stopRequested = false;
@@ -163,6 +168,25 @@ const rollFruit = (fruit, index) => {
             pos % fruits.fruitSize < 5 &&
             now - lastStop >= fruits.stopDelay
         ) {
+            if (fruits.remaining < 0.5 + index * fruits.stopDelay) {
+                console.log(
+                    `Slowing down fruit ${index} at ${
+                        fruits.remaining
+                    } s. left...`
+                );
+                fruits.elements[index].style.setProperty(
+                    'transition',
+                    'all 300ms cubic-bezier(0,1.94,.78,.76)'
+                );
+                let pos = (fruits.positions[index] += thisStep * 10);
+                fruits.positions[index] =
+                    pos % (fruits.fruitSize * fruitNames.length);
+                fruit.style.setProperty(
+                    'background-position',
+                    '0 ' + pos + 'px'
+                );
+            }
+
             // Snapping final position to a multiple of fruitSize (150px)
             const cut = fruits.positions[index] % fruits.fruitSize;
             if (cut > 0) {
@@ -178,8 +202,12 @@ const rollFruit = (fruit, index) => {
             fruits.rolling[index] = false;
             fruits.sounds[index].pause();
 
-            // Playing one random stop sound from the list
             fruits.soundStop.play();
+            setTimeout(() => {
+                fruits.soundStop.volume = 0.2;
+                fruits.soundStop.play();
+                fruits.soundStop.volume = 1;
+            }, 90);
             fruits.elements[index].style.setProperty('filter', 'blur(0px)');
 
             clearInterval(fruits.intervals[index]);
@@ -227,10 +255,15 @@ const updateGameObject = () => {
         fruits.soundLose.play();
     }
 
+    const now = new Date().getTime();
+    const diff = now - gameStarted;
+    const remaining = (fruits.rollsDuration - diff) / 1000;
+
     fruits = {
         ...fruits,
         status,
-        result
+        result,
+        remaining
     };
 };
 
@@ -262,16 +295,36 @@ const launchConfetti = () => {
 const toggleInfo = () => {
     showInfo = !showInfo;
     info.style.setProperty('bottom', showInfo ? '60px' : '-90%');
+    info.style.setProperty(
+        'transform',
+        showInfo
+            ? 'perspective(4em) rotateX(0deg)'
+            : 'perspective(4em) rotateX(15deg)'
+    );
     toggleInfoButton.textContent = `${showInfo ? ' ▼' : ' ▲'} Game info`;
 };
 
 const updateInfo = () => {
-    const infoObject = { ...fruits };
-    delete infoObject.elements;
-    delete infoObject.sounds;
-    delete infoObject.soundStop;
-    delete infoObject.soundWin;
-    delete infoObject.soundLose;
+    const remaining = fruits.remaining ? `${fruits.remaining} s.` : null;
+
+    const infoObject = {
+        ...fruits,
+        remaining
+    };
+
+    // Game object property we won't display as game info
+    const discard = [
+        'elements',
+        'sounds',
+        'soundStop',
+        'soundWin',
+        'soundLose',
+        'result'
+    ];
+    if (!remaining) {
+        discard.push('remaining');
+    }
+    discard.forEach(d => delete infoObject[d]);
 
     delete infoObject.intervals;
     info.children[0].textContent = 'Game Info';
