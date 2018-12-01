@@ -7,8 +7,8 @@
 // -----------------------------------------
 
 // DOM elements
-let settings, confetti, handle, fruit1, fruit2, fruit3;
-
+let settings, info, toggleInfoButton, confetti, handle, fruit1, fruit2, fruit3;
+let showInfo = false;
 // Timestamp of the last stopped fruit
 let lastStop = 0;
 
@@ -40,6 +40,8 @@ let fruits = {
     // Each fruit sound when rolling
     sounds: [],
     soundStop: new Audio('/assets/sound/stop.wav'),
+    soundWin: new Audio('/assets/sound/win.wav'),
+    soundLose: new Audio('/assets/sound/lose.wav'),
 
     // Background position tracking, starting at a random position between 0px and 600px
     positions: [],
@@ -54,10 +56,11 @@ document.addEventListener(
     'DOMContentLoaded',
     function() {
         settings = document.getElementById('settings');
+        toggleInfoButton = document.getElementById('toggle-info');
+        info = document.getElementById('info');
         confetti = document.getElementById('confetti');
         handle = document.getElementById('handle');
         gameResults = document.getElementById('game-results');
-        debug = document.getElementById('debug');
         fruits.elements.push(document.getElementById('f-1'));
         fruits.elements.push(document.getElementById('f-2'));
         fruits.elements.push(document.getElementById('f-3'));
@@ -74,6 +77,8 @@ document.addEventListener(
 
         // Apply initial random positions
         resetFruitPositions();
+        updateInfo();
+        toggleInfo();
         addEventListeners();
     },
     false
@@ -102,6 +107,8 @@ const addEventListeners = () => {
         console.log('Settings');
     });
 
+    toggleInfoButton.addEventListener('click', event => toggleInfo());
+
     handle.addEventListener('click', event => {
         if (fruits.gameFinished) {
             startGame();
@@ -118,10 +125,9 @@ const startGame = () => {
     fruits.gameFinished = false;
     fruits.stopRequested = false;
     fruits.rolling = Array(3).fill(true);
-    debug.children[0].textContent = 'Game Info';
-    // confetti.style.setProperty('display', 'none');
-    confetti.style.setProperty('transform', 'translateY(-100%)');
+    hideConfetti();
     updateGameObject();
+    // updateInfo();
     fruits.elements.forEach((fruit, index) => {
         const startDelay = index * fruits.startDelay;
         setTimeout(() => {
@@ -147,7 +153,8 @@ const rollFruit = (fruit, index) => {
     fruit.style.setProperty('filter', 'blur(2px)');
 
     const interval = setInterval(() => {
-        const pos = (fruits.positions[index] += thisStep);
+        let pos = (fruits.positions[index] += thisStep);
+        fruits.positions[index] = pos % (fruits.fruitSize * fruitNames.length);
         fruit.style.setProperty('background-position', '0 ' + pos + 'px');
         const now = new Date().getTime();
 
@@ -156,6 +163,17 @@ const rollFruit = (fruit, index) => {
             pos % fruits.fruitSize < 5 &&
             now - lastStop >= fruits.stopDelay
         ) {
+            // Snapping final position to a multiple of fruitSize (150px)
+            const cut = fruits.positions[index] % fruits.fruitSize;
+            if (cut > 0) {
+                fruits.positions[index] -= cut;
+                fruit.style.setProperty(
+                    'background-position',
+                    '0 ' + pos + 'px'
+                );
+            }
+            console.log(cut, fruits.positions[index] % fruits.fruitSize);
+
             lastStop = now;
             fruits.rolling[index] = false;
             fruits.sounds[index].pause();
@@ -174,7 +192,7 @@ const rollFruit = (fruit, index) => {
         }
 
         updateGameObject();
-        updateDebug();
+        updateInfo();
         if (fruits.gameFinished) {
             gameResults.textContent = fruits.result;
             console.log(`GAME FINISHED! ${fruits.status.join('')}`);
@@ -186,7 +204,8 @@ const rollFruit = (fruit, index) => {
 
 const updateGameObject = () => {
     const status = fruits.positions.map(
-        pos => fruitNames[Math.floor((pos / fruits.fruitSize) % 5)]
+        pos =>
+            fruitNames[Math.floor((pos / fruits.fruitSize) % fruitNames.length)]
     );
 
     const uniqueFruits = status.reduce((result, current) => {
@@ -202,8 +221,10 @@ const updateGameObject = () => {
     if (!fruits.gameFinished) {
         gameResults.textContent = status.join('');
     } else if (uniqueFruits < 3) {
-        // confetti.style.setProperty('display', 'flex');
-        confetti.style.setProperty('transform', 'translateY(0%)');
+        launchConfetti();
+        fruits.soundWin.play();
+    } else {
+        fruits.soundLose.play();
     }
 
     fruits = {
@@ -213,8 +234,48 @@ const updateGameObject = () => {
     };
 };
 
-const updateDebug = () => {
-    debug.children[1].textContent = JSON.stringify(fruits, null, 2);
+const hideConfetti = () => {
+    confetti.style.setProperty('transition', '1000ms ease-in-out');
+    confetti.style.setProperty(
+        'transform',
+        'scale3d(0.1,0.1,1) rotate3d(0,0,0,360deg)'
+    );
+    setTimeout(() => {
+        confetti.style.setProperty(
+            'transform',
+            'translateY(-100%) scale3d(0.05,0.05,1)'
+        );
+    }, 3000);
+};
+
+const launchConfetti = () => {
+    confetti.style.setProperty('transition', '3000ms ease-in-out');
+    confetti.style.setProperty('transform', ' scale3d(1,1,1)');
+    setTimeout(() => {
+        confetti.style.setProperty(
+            'transform',
+            'translateY(0%) scale3d(1,1,1)'
+        );
+    }, 3000);
+};
+
+const toggleInfo = () => {
+    showInfo = !showInfo;
+    info.style.setProperty('bottom', showInfo ? '60px' : '-90%');
+    toggleInfoButton.textContent = `${showInfo ? ' ▼' : ' ▲'} Game info`;
+};
+
+const updateInfo = () => {
+    const infoObject = { ...fruits };
+    delete infoObject.elements;
+    delete infoObject.sounds;
+    delete infoObject.soundStop;
+    delete infoObject.soundWin;
+    delete infoObject.soundLose;
+
+    delete infoObject.intervals;
+    info.children[0].textContent = 'Game Info';
+    info.children[1].textContent = JSON.stringify(infoObject, null, 2);
 };
 
 const fruitNames = ['🔔', '🍇', '🍒', '7️⃣', '🍋'];

@@ -33,6 +33,7 @@ body {
     position: absolute;
     top: 10px;
     width: 50px;
+    z-index: 10;
 }
 
 #confetti {
@@ -43,12 +44,11 @@ body {
     width: 100%;
     position: absolute;
     /* Hidden at start */
-    transform: translateY(-100%);
+    transform: translateY(-100%) scale3d(0.1, 0.1, 1);
     transition: 3000ms ease-in-out;
 }
 
 #slot {
-    border: solid 2px;
     width: calc(100% - 6px);
     height: 100%;
     display: grid;
@@ -56,6 +56,7 @@ body {
     grid-template-rows: auto;
     grid-gap: 0;
     align-items: center;
+    z-index: 5;
 }
 
 #game-results {
@@ -67,7 +68,7 @@ body {
     margin-top: calc(50vh - 200px);
     position: absolute;
     width: 100%;
-    z-index: 999;
+    z-index: 10;
 }
 
 #handle {
@@ -83,6 +84,20 @@ body {
     transition: 500ms;
 }
 
+#handle:active {
+    transform: rotate3d(1, 0, 0, 30deg);
+}
+
+#handle-base {
+    background-image: url(/assets/img/handle-base.png);
+    background-size: 60px 102px;
+    left: calc(50% + 280px);
+    top: 4%;
+    height: 102px;
+    width: 60px;
+    z-index: 10;
+}
+
 .fruits {
     border: solid 4px rgba(0, 0, 0, 0.25);
     border-radius: var(--border-radius);
@@ -92,8 +107,11 @@ body {
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
     background-image: linear-gradient(
         to bottom,
+        rgba(0, 0, 0, 0.25),
         rgba(0, 0, 0, 0),
-        rgba(0, 0, 0, 0.5)
+        rgba(0, 0, 0, 0.4),
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.65)
     );
 }
 
@@ -140,22 +158,36 @@ body {
     background-size: 150px auto;
 }
 
-#handle:active {
-    transform: rotate3d(1, 0, 0, 30deg);
-}
-
-#handle-base {
-    background-image: url(/assets/img/handle-base.png);
-    background-size: 60px 102px;
-    left: calc(50% + 280px);
-    top: 4%;
-    height: 102px;
-    width: 60px;
-    z-index: 10;
-}
-
-#debug {
+#info {
     padding: 1em;
+    font-size: 0.9em;
     position: fixed;
-    bottom: 0;
+    bottom: 60px;
+    transition: 300ms ease-in-out;
+}
+
+#toggle-info {
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #c34803;
+    color: antiquewhite;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+    z-index: 5;
+}
+
+#toggle-info:active {
+    color: yellowgreen;
+    bottom: 19px;
+    left: 21px;
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+#toggle-info:hover {
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
 }
