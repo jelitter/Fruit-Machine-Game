@@ -24,7 +24,8 @@ body {
 }
 
 #settings {
-    background-image: url('/assets/img/cog-white.svg');
+    background-image: url('/assets/img/cog-white.svg'),
+        url('/Fruit-Machine-Game/assets/img/cog-white.svg');
     background-position: center center;
     background-size: 50px 50px;
     cursor: pointer;
@@ -91,7 +92,8 @@ input[type='radio'] {
 }
 
 #confetti {
-    background-image: url('/assets/img/confetti.gif');
+    background-image: url('/assets/img/confetti.gif'),
+        url('/Fruit-Machine-Game/assets/img/confetti.gif');
     background-position: center center;
     background-size: 300px 300px;
     height: 100%;
@@ -126,7 +128,8 @@ input[type='radio'] {
 }
 
 #handle {
-    background-image: url(/assets/img/handle.png);
+    background-image: url(/assets/img/handle.png),
+        url(/Fruit-Machine-Game/assets/img/handle.png);
     background-size: 70px 300px;
     transform: rotate3d(1, 0, 0, 0deg);
     transform-origin: bottom left;
@@ -147,7 +150,8 @@ input[type='radio'] {
 }
 
 #handle-base {
-    background-image: url(/assets/img/handle-base.png);
+    background-image: url(/assets/img/handle-base.png),
+        url(/Fruit-Machine-Game/assets/img/handle-base.png);
     background-size: 60px 102px;
     left: calc(50% + 280px);
     top: 4%;
@@ -206,19 +210,25 @@ input[type='radio'] {
 
 #f-1 {
     background: url('/assets/img/sprite.png') 0
-        calc(var(--fruit-width) * var(--fruit-1-pos));
+            calc(var(--fruit-width) * var(--fruit-1-pos)),
+        url('/Fruit-Machine-Game/assets/img/sprite.png') 0
+            calc(var(--fruit-width) * var(--fruit-1-pos));
     background-size: 150px auto;
 }
 
 #f-2 {
     background: url('/assets/img/sprite.png') 0
-        calc(var(--fruit-width) * var(--fruit-2-pos));
+            calc(var(--fruit-width) * var(--fruit-2-pos)),
+        url('/Fruit-Machine-Game/assets/img/sprite.png') 0
+            calc(var(--fruit-width) * var(--fruit-2-pos));
     background-size: 150px auto;
 }
 
 #f-3 {
     background: url('/assets/img/sprite.png') 0
-        calc(var(--fruit-width) * var(--fruit-3-pos));
+            calc(var(--fruit-width) * var(--fruit-3-pos)),
+        url('/Fruit-Machine-Game/assets/img/sprite.png') 0
+            calc(var(--fruit-width) * var(--fruit-3-pos));
     background-size: 150px auto;
 }
 
