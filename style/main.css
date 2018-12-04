@@ -24,9 +24,9 @@ body {
 }
 
 #settings {
-    background-image: url('/assets/img/cog.svg');
+    background-image: url('/assets/img/cog-white.svg');
     background-position: center center;
-    background-size: 70px 70px;
+    background-size: 50px 50px;
     cursor: pointer;
     height: 50px;
     left: 10px;
@@ -34,6 +34,60 @@ body {
     top: 10px;
     width: 50px;
     z-index: 10;
+    transition: 300ms ease-in-out;
+}
+
+#settings:hover {
+    transform: rotate3d(0, 0, 1, 90deg);
+}
+
+#settings-background {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    transition: 1000ms ease-in-out;
+}
+
+#settings-panel {
+    border: solid 2px;
+    border-radius: 8px;
+    background-color: black;
+    color: white;
+    width: 400px;
+    height: 500px;
+    margin: auto;
+    margin-top: calc(50vh - 250px);
+}
+
+#settings-panel form {
+    margin: auto;
+    margin: 25%;
+    line-height: 2.5em;
+    font-size: 2em;
+}
+
+input[type='radio'] {
+    border: 0px;
+    width: 20%;
+    height: 1em;
+}
+
+#close {
+    border: solid 2px white;
+    text-align: center;
+    font-size: 3em;
+    border-radius: 50%;
+    height: 1.2em;
+    width: 1.2em;
+    margin-left: calc(50% - 0.6em);
+    transition: 300ms ease-in-out;
+}
+#close:hover {
+    cursor: pointer;
+    transform: rotate3d(0, 0, 1, 90deg);
 }
 
 #confetti {
@@ -60,7 +114,7 @@ body {
 }
 
 #game-results {
-    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
     text-align: center;
     font-size: 2em;
     color: whitesmoke;
@@ -81,7 +135,11 @@ body {
     margin-left: 55px;
     height: 300px;
     width: 70px;
-    transition: 500ms;
+    transition: 500ms ease-in-out;
+}
+
+#handle:hover {
+    filter: saturate(2);
 }
 
 #handle:active {
@@ -96,6 +154,7 @@ body {
     height: 102px;
     width: 60px;
     z-index: 10;
+    transition: 500ms ease-in-out;
 }
 
 .fruits {
@@ -113,6 +172,7 @@ body {
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0.65)
     );
+    transition: 500ms ease-in-out;
 }
 
 .fruit-frame {
@@ -130,6 +190,7 @@ body {
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0.5)
     );
+    transition: 500ms ease-in-out;
 }
 
 .fruit {
@@ -148,11 +209,13 @@ body {
         calc(var(--fruit-width) * var(--fruit-1-pos));
     background-size: 150px auto;
 }
+
 #f-2 {
     background: url('/assets/img/sprite.png') 0
         calc(var(--fruit-width) * var(--fruit-2-pos));
     background-size: 150px auto;
 }
+
 #f-3 {
     background: url('/assets/img/sprite.png') 0
         calc(var(--fruit-width) * var(--fruit-3-pos));
@@ -167,13 +230,12 @@ body {
     left: 20px;
     background-color: rgba(255, 255, 255, 0.25);
     border-radius: 8px;
-    /* transition-timing-function: cubic-bezier(0.64, 0.57, 0.67, 1.53);
-    transition-duration: 1s; */
     transition: all 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
     user-select: none;
-    cursor: grab;
+    cursor: pointer;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
+
 div#info:hover {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
@@ -203,4 +265,13 @@ div#info:hover {
 }
 #toggle-info:hover {
     text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.5);
+}
+
+#copy {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    color: rgba(0, 0, 0, 0.4);
+    font-weight: 600;
+    user-select: none;
 }

@@ -14,6 +14,17 @@
         <link rel="icon" type="image/png" href="favicon.png" />
     </head>
     <body class="fill">
+        <div id="settings-background">
+            <div id="settings-panel">
+                <form id="theme">
+                    <input type="radio" name="theme" value="orange" checked />
+                    Orange<br />
+                    <input type="radio" name="theme" value="white" />
+                    White<br />
+                </form>
+                <div id="close">&times;</div>
+            </div>
+        </div>
         <div id="settings"></div>
         <div id="confetti"></div>
         <div id="game-results"></div>
@@ -36,6 +47,7 @@
             <pre></pre>
         </div>
 
+        <span id="copy">&copy; Isaac Sanchez, 2018</span>
         <script src="js/script.js"></script>
     </body>
 </html>

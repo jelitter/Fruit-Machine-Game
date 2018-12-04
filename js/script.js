@@ -4,10 +4,14 @@
 
 // DOM elements
 let settings, info, toggleInfoButton, confetti, handle, fruit1, fruit2, fruit3;
+let inputTheme, buttonClose;
 let showInfo = false;
+
 // Timestamp of the last stopped fruit
-let gameStarted = 0;
 let lastStop = 0;
+
+// Timestamp of the last started game
+let gameStarted = 0;
 
 let fruits = {
     // Fruit with and height
@@ -56,6 +60,7 @@ let fruits = {
 document.addEventListener(
     'DOMContentLoaded',
     function() {
+        // Get all DOM elements we're going to manipulate
         settings = document.getElementById('settings');
         toggleInfoButton = document.getElementById('toggle-info');
         info = document.getElementById('info');
@@ -65,6 +70,9 @@ document.addEventListener(
         fruits.elements.push(document.getElementById('f-1'));
         fruits.elements.push(document.getElementById('f-2'));
         fruits.elements.push(document.getElementById('f-3'));
+
+        inputTheme = document.getElementById('theme');
+        buttonClose = document.getElementById('close');
 
         fruits.sounds = [
             new Audio('/assets/sound/tick.wav'),
@@ -81,6 +89,14 @@ document.addEventListener(
         updateInfo();
         toggleInfo();
         addEventListeners();
+
+        setInterval(() => {
+            const val = (new Date().getTime() / 50) % 360;
+            toggleInfoButton.style.setProperty(
+                'filter',
+                `hue-rotate(${val}deg)`
+            );
+        }, 16);
     },
     false
 );
@@ -90,6 +106,7 @@ const getRandomPosition = () => {
 };
 
 const resetFruitPositions = () => {
+    // Game starts with fruits at random positions
     fruits.positions = [
         getRandomPosition(),
         getRandomPosition(),
@@ -107,7 +124,13 @@ const resetFruitPositions = () => {
 
 const addEventListeners = () => {
     settings.addEventListener('click', event => {
+        const background = document.getElementById('settings-background');
+        background.style.setProperty('display', 'flex');
+    });
+    buttonClose.addEventListener('click', event => {
         console.log('Settings');
+        const background = document.getElementById('settings-background');
+        background.style.setProperty('display', 'none');
     });
 
     toggleInfoButton.addEventListener('click', event => toggleInfo());
@@ -119,6 +142,12 @@ const addEventListeners = () => {
         } else {
             console.log('Game in progress, please wait');
         }
+    });
+
+    inputTheme.addEventListener('click', event => {
+        const checked = document.querySelector('input[name=theme]:checked')
+            .value;
+        setTheme(checked);
     });
 };
 
@@ -148,7 +177,7 @@ const startGame = () => {
 };
 
 const rollFruit = (fruit, index) => {
-    // Random speed between 15 and 20 pixels per animation frame
+    // Each fruit has a random speed between 15 and 20 pixels per animation frame
     const thisStep = fruits.step + Math.floor(Math.random() * 5);
 
     // Start roulette sound
@@ -168,6 +197,8 @@ const rollFruit = (fruit, index) => {
             pos % fruits.fruitSize < 5 &&
             now - lastStop >= fruits.stopDelay
         ) {
+            // Slow down the fruit when it's about to stop and add
+            // a elastic bounce effect
             if (fruits.remaining < 0.5 + index * fruits.stopDelay) {
                 console.log(
                     `Slowing down fruit ${index} at ${
@@ -178,7 +209,7 @@ const rollFruit = (fruit, index) => {
                     'transition',
                     'all 300ms cubic-bezier(0,1.94,.78,.76)'
                 );
-                let pos = (fruits.positions[index] += thisStep * 10);
+                let pos = (fruits.positions[index] += thisStep * 2);
                 fruits.positions[index] =
                     pos % (fruits.fruitSize * fruitNames.length);
                 fruit.style.setProperty(
@@ -196,18 +227,18 @@ const rollFruit = (fruit, index) => {
                     '0 ' + pos + 'px'
                 );
             }
-            console.log(cut, fruits.positions[index] % fruits.fruitSize);
 
             lastStop = now;
             fruits.rolling[index] = false;
             fruits.sounds[index].pause();
 
+            // Makes a stop sound, and a second stop sound a few miliseconds later for an bounce effect
             fruits.soundStop.play();
             setTimeout(() => {
                 fruits.soundStop.volume = 0.2;
                 fruits.soundStop.play();
                 fruits.soundStop.volume = 1;
-            }, 90);
+            }, 90 + Math.random() * 0.5);
             fruits.elements[index].style.setProperty('filter', 'blur(0px)');
 
             clearInterval(fruits.intervals[index]);
@@ -259,6 +290,7 @@ const updateGameObject = () => {
     const diff = now - gameStarted;
     const remaining = (fruits.rollsDuration - diff) / 1000;
 
+    // We make a copy of the Fruits object and add 3 more properties to it
     fruits = {
         ...fruits,
         status,
@@ -329,6 +361,56 @@ const updateInfo = () => {
     delete infoObject.intervals;
     info.children[0].textContent = 'Game Info';
     info.children[1].textContent = JSON.stringify(infoObject, null, 2);
+};
+
+const setTheme = name => {
+    const themes = {
+        white: {
+            backgroundColor: 'whitesmoke',
+            fruitFrameColor: 'linen',
+            settingsButton: 'cog-black.svg',
+            toggleInfoButton: 'slategray',
+            gameResults: 'red',
+            handle: 'handle-white.png',
+            handleBase: 'handle-base-white.png'
+        },
+        orange: {
+            backgroundColor: 'orange',
+            fruitFrameColor: '#c34803',
+            settingsButton: 'cog-white.svg',
+            toggleInfoButton: '#c34803',
+            gameResults: 'whitesmoke',
+            handle: 'handle.png',
+            handleBase: 'handle-base.png'
+        }
+    };
+
+    const theme = themes[name];
+
+    const body = document.getElementsByTagName('body')[0];
+    const fruits = document.getElementsByClassName('fruits')[0];
+    const imgHandle = document.getElementById('handle');
+    const imgHandleBase = document.getElementById('handle-base');
+
+    body.style.setProperty('background-color', theme.backgroundColor);
+    fruits.style.setProperty('background-color', theme.fruitFrameColor);
+    toggleInfoButton.style.setProperty(
+        'background-color',
+        theme.toggleInfoButton
+    );
+    gameResults.style.setProperty('color', theme.gameResults);
+    settings.style.setProperty(
+        'background-image',
+        `url('/assets/img/${theme.settingsButton}`
+    );
+    imgHandle.style.setProperty(
+        'background-image',
+        `url('/assets/img/${theme.handle}`
+    );
+    imgHandleBase.style.setProperty(
+        'background-image',
+        `url('/assets/img/${theme.handleBase}`
+    );
 };
 
 const fruitNames = ['🔔', '🍇', '🍒', '7️⃣', '🍋'];
