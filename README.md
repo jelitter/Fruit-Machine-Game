@@ -1,3 +1,3 @@
----
-permalink: /index.html
----
+# Fruit Game
+
+[🍋🍒🍇](/index.html)
