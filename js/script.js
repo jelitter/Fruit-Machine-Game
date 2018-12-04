@@ -2,6 +2,12 @@
 //         VARIABLES & CONSTANTS
 // -----------------------------------------
 
+//
+const pathPrefix =
+    window.location.href === 'https://jelitter.github.io/Fruit-Machine-Game/'
+        ? '/Fruit-Machine-Game'
+        : '';
+
 // DOM elements
 let settings, info, toggleInfoButton, confetti, handle, fruit1, fruit2, fruit3;
 let inputTheme, buttonClose;
@@ -40,9 +46,9 @@ let fruits = {
 
     // Each fruit sound when rolling
     sounds: [],
-    soundStop: new Audio('/assets/sound/stop.wav'),
-    soundWin: new Audio('/assets/sound/win.wav'),
-    soundLose: new Audio('/assets/sound/lose.wav'),
+    soundStop: new Audio(`${pathPrefix}/assets/sound/stop.wav`),
+    soundWin: new Audio(`${pathPrefix}/assets/sound/win.wav`),
+    soundLose: new Audio(`${pathPrefix}/assets/sound/lose.wav`),
 
     // Background position tracking, starting at a random position between 0px and 600px
     positions: [],
@@ -75,9 +81,9 @@ document.addEventListener(
         buttonClose = document.getElementById('close');
 
         fruits.sounds = [
-            new Audio('/assets/sound/tick.wav'),
-            new Audio('/assets/sound/tick.wav'),
-            new Audio('/assets/sound/tick.wav')
+            new Audio(`${pathPrefix}/assets/sound/tick.wav`),
+            new Audio(`${pathPrefix}/assets/sound/tick.wav`),
+            new Audio(`${pathPrefix}/assets/sound/tick.wav`)
         ];
         fruits.sounds.forEach(s => {
             s.loop = true;
@@ -401,15 +407,15 @@ const setTheme = name => {
     gameResults.style.setProperty('color', theme.gameResults);
     settings.style.setProperty(
         'background-image',
-        `url('/assets/img/${theme.settingsButton}`
+        `url(${pathPrefix}/assets/img/${theme.settingsButton}`
     );
     imgHandle.style.setProperty(
         'background-image',
-        `url('/assets/img/${theme.handle}`
+        `url(${pathPrefix}/assets/img/${theme.handle}`
     );
     imgHandleBase.style.setProperty(
         'background-image',
-        `url('/assets/img/${theme.handleBase}`
+        `url(${pathPrefix}/assets/img/${theme.handleBase}`
     );
 };
 
